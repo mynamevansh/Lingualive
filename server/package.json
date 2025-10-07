@@ -1,0 +1,53 @@
+{
+  "name": "lingualive-server",
+  "version": "1.0.0",
+  "description": "LinguaLive Backend Server - Real-time translation and meeting collaboration",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest",
+    "lint": "eslint .",
+    "setup": "npm install"
+  },
+  "keywords": [
+    "translation",
+    "real-time",
+    "meetings",
+    "websocket",
+    "ai",
+    "collaboration"
+  ],
+  "author": "LinguaLive Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "mongoose": "^7.4.1",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "dotenv": "^16.3.1",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.1",
+    "express-rate-limit": "^6.8.1",
+    "morgan": "^1.10.0",
+    "compression": "^1.7.4",
+    "express-validator": "^7.0.1",
+    "multer": "^1.4.5-lts.1",
+    "node-cron": "^3.0.2",
+    "uuid": "^9.0.0",
+    "axios": "^1.4.0",
+    "ws": "^8.13.0",
+    "sharp": "^0.32.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.6.1",
+    "supertest": "^6.3.3",
+    "eslint": "^8.44.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}

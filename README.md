@@ -1,165 +1,326 @@
-# LinguaLive 🌍<<<<<<< HEAD
+<div align="center"># LinguaLive 🌍<<<<<<< HEAD
 
-# LinguaLive 🌍
 
-**Real-time multilingual meeting assistant—Chrome Extension & web app with live translation, instant summaries, and grammar-perfect notes using Chrome Built-in AI (Gemini Nano).**
 
-**Privacy-first real-time translation, subtitles, and AI-powered meeting summaries with built-in Chrome AI**
+# 🌍 LinguaLive# LinguaLive 🌍
 
-LinguaLive is a comprehensive real-time translation and meeting notes application that combines the power of Chrome's built-in AI with a robust web platform for seamless multilingual communication and collaboration.
 
-LinguaLive is a comprehensive real-time translation and meeting notes application that combines the power of Chrome's built-in AI with a robust web platform for seamless multilingual communication and collaboration.
 
-## 🚀 Features
+![License](https://img.shields.io/github/license/mynamevansh/Lingualive)**Real-time multilingual meeting assistant—Chrome Extension & web app with live translation, instant summaries, and grammar-perfect notes using Chrome Built-in AI (Gemini Nano).**
 
-## 🚀 Features
+![Version](https://img.shields.io/badge/version-2.0.0-blue)
 
-### Core Features
+![React](https://img.shields.io/badge/React-19.x-61dafb)**Privacy-first real-time translation, subtitles, and AI-powered meeting summaries with built-in Chrome AI**
 
-- **Real-time Translation**: Instant translation using Chrome's built-in AI with cloud fallbacks### Core Features
+![Node.js](https://img.shields.io/badge/Node.js-16+-green)
 
-- **Live Subtitles**: Real-time speech recognition and subtitle display- **Real-time Translation**: Instant translation using Chrome's built-in AI with cloud fallbacks
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)LinguaLive is a comprehensive real-time translation and meeting notes application that combines the power of Chrome's built-in AI with a robust web platform for seamless multilingual communication and collaboration.
 
-- **Meeting Summaries**: AI-powered meeting summaries and key points extraction- **Live Subtitles**: Real-time speech recognition and subtitle display
 
-- **Multi-language Support**: Support for 100+ languages- **Meeting Summaries**: AI-powered meeting summaries and key points extraction
 
-- **Privacy-first**: Processes data locally when possible using Chrome AI- **Multi-language Support**: Support for 100+ languages
+**Real-time multilingual meeting assistant with Chrome AI integration**LinguaLive is a comprehensive real-time translation and meeting notes application that combines the power of Chrome's built-in AI with a robust web platform for seamless multilingual communication and collaboration.
+
+
+
+*Break language barriers with instant translation, live subtitles, and AI-powered meeting summaries*## 🚀 Features
+
+
+
+[🚀 Try Demo](#-quick-start) • [📖 Documentation](#-features) • [🤝 Contribute](#-contributing) • [⭐ Star us](https://github.com/mynamevansh/Lingualive)## 🚀 Features
+
+
+
+</div>### Core Features
+
+
+
+---- **Real-time Translation**: Instant translation using Chrome's built-in AI with cloud fallbacks### Core Features
+
+
+
+## ✨ Features- **Live Subtitles**: Real-time speech recognition and subtitle display- **Real-time Translation**: Instant translation using Chrome's built-in AI with cloud fallbacks
+
+
+
+🔄 **Real-time Translation** • Instant translation using Chrome Built-in AI (Gemini Nano)  - **Meeting Summaries**: AI-powered meeting summaries and key points extraction- **Live Subtitles**: Real-time speech recognition and subtitle display
+
+🎤 **Live Subtitles** • Speech recognition with real-time subtitle overlay  
+
+📝 **AI Summaries** • Smart meeting notes with key points and action items  - **Multi-language Support**: Support for 100+ languages- **Meeting Summaries**: AI-powered meeting summaries and key points extraction
+
+🌐 **100+ Languages** • Multi-language support with auto-detection  
+
+🔒 **Privacy First** • Local processing with Chrome AI, secure by design  - **Privacy-first**: Processes data locally when possible using Chrome AI- **Multi-language Support**: Support for 100+ languages
+
+⚡ **Real-time Sync** • WebSocket-powered collaboration across devices  
 
 - **Cross-platform**: Chrome extension + Web application + Mobile-responsive- **Privacy-first**: Processes data locally when possible using Chrome AI
 
+## 🛠 Tech Stack
+
 - **Cross-platform**: Chrome extension + Web application + Mobile-responsive
 
-### AI-Powered Features
+**Frontend** • React 19 + Tailwind CSS v4 + Socket.IO  
 
-- **Smart Translation**: Context-aware translation using Chrome's AI translator### AI-Powered Features
+**Backend** • Node.js + Express + MongoDB + Socket.IO  ### AI-Powered Features
 
-- **Intelligent Summarization**: Meeting summaries with key topics and action items- **Smart Translation**: Context-aware translation using Chrome's AI translator
+**Extension** • Chrome Extension API (Manifest V3)  
 
-- **Text Enhancement**: Grammar checking and text improvement- **Intelligent Summarization**: Meeting summaries with key topics and action items
+**AI** • Chrome Built-in AI APIs (Translation, Summarization)  - **Smart Translation**: Context-aware translation using Chrome's AI translator### AI-Powered Features
 
-- **Language Detection**: Automatic language detection- **Text Enhancement**: Grammar checking and text improvement
+
+
+## 🚀 Quick Start- **Intelligent Summarization**: Meeting summaries with key topics and action items- **Smart Translation**: Context-aware translation using Chrome's AI translator
+
+
+
+```bash- **Text Enhancement**: Grammar checking and text improvement- **Intelligent Summarization**: Meeting summaries with key topics and action items
+
+# Clone the repository
+
+git clone https://github.com/mynamevansh/Lingualive.git- **Language Detection**: Automatic language detection- **Text Enhancement**: Grammar checking and text improvement
+
+cd lingualive
 
 - **Custom Prompts**: AI-powered custom prompts for specific use cases- **Language Detection**: Automatic language detection
 
-- **Custom Prompts**: AI-powered custom prompts for specific use cases
+# Install dependencies
+
+cd server && npm install- **Custom Prompts**: AI-powered custom prompts for specific use cases
+
+cd ../webapp && npm install
 
 ### Collaboration Features
 
-- **Real-time Rooms**: Join or create meeting rooms for live collaboration### Collaboration Features
+# Set up environment
 
-- **Live Subtitles Overlay**: See translations overlaid on any webpage- **Real-time Rooms**: Join or create meeting rooms for live collaboration
+cd ../server- **Real-time Rooms**: Join or create meeting rooms for live collaboration### Collaboration Features
 
-- **Message History**: Persistent message and translation history- **Live Subtitles Overlay**: See translations overlaid on any webpage
+echo "NODE_ENV=development
+
+PORT=3001- **Live Subtitles Overlay**: See translations overlaid on any webpage- **Real-time Rooms**: Join or create meeting rooms for live collaboration
+
+MONGODB_URI=mongodb://localhost:27017/lingualive
+
+CORS_ORIGINS=http://localhost:5173- **Message History**: Persistent message and translation history- **Live Subtitles Overlay**: See translations overlaid on any webpage
+
+CLIENT_URL=http://localhost:5173" > .env
 
 - **User Profiles**: Customizable user preferences and language settings- **Message History**: Persistent message and translation history
 
-- **Multi-device Sync**: Seamless experience across devices- **User Profiles**: Customizable user preferences and language settings
+# Start MongoDB (Docker)
 
-- **Multi-device Sync**: Seamless experience across devices
+docker run -d -p 27017:27017 --name mongodb mongo:latest- **Multi-device Sync**: Seamless experience across devices- **User Profiles**: Customizable user preferences and language settings
+
+
+
+# Launch servers- **Multi-device Sync**: Seamless experience across devices
+
+cd server && npm run dev     # Backend: http://localhost:3001
+
+cd webapp && npm start       # Frontend: http://localhost:5173## 🏗️ Architecture
+
+```
 
 ## 🏗️ Architecture
 
-## 🏗️ Architecture
+### 🔌 Chrome Extension Setup
 
-### Components
+1. Open `chrome://extensions/` → Enable "Developer mode"### Components
 
-1. **Chrome Extension** - Browser integration with content scripts and popup interface### Components
+2. Click "Load unpacked" → Select the `extension/` folder
 
-2. **React Web App** - Standalone web application for meeting rooms1. **Chrome Extension** - Browser integration with content scripts and popup interface
+3. Pin the extension and start translating! 🎉1. **Chrome Extension** - Browser integration with content scripts and popup interface### Components
 
-3. **Node.js Backend** - Real-time server with Socket.IO and MongoDB2. **React Web App** - Standalone web application for meeting rooms
 
-4. **AI Services** - Chrome AI integration with cloud fallbacks3. **Node.js Backend** - Real-time server with Socket.IO and MongoDB
 
-4. **AI Services** - Chrome AI integration with cloud fallbacks
+## 🎯 Usage2. **React Web App** - Standalone web application for meeting rooms1. **Chrome Extension** - Browser integration with content scripts and popup interface
 
-### Technology Stack
 
-- **Frontend**: React 19, Tailwind CSS v4, Socket.IO Client### Technology Stack
 
-- **Backend**: Node.js, Express.js, Socket.IO, MongoDB, Mongoose- **Frontend**: React 18, Material-UI, Socket.IO Client
+### 🌐 Web App3. **Node.js Backend** - Real-time server with Socket.IO and MongoDB2. **React Web App** - Standalone web application for meeting rooms
 
-- **Extension**: Chrome Extension API, Manifest V3- **Backend**: Node.js, Express.js, Socket.IO, MongoDB, Mongoose
+- **Visit**: `http://localhost:5173`
 
-- **AI Integration**: Chrome AI APIs (translator, summarizer, rewriter)- **Extension**: Chrome Extension API, Manifest V3
+- **Test API**: Click "Test API Connection"4. **AI Services** - Chrome AI integration with cloud fallbacks3. **Node.js Backend** - Real-time server with Socket.IO and MongoDB
 
-- **Real-time**: WebSocket with Socket.IO- **AI Integration**: Chrome AI APIs (translator, summarizer, rewriter)
+- **Start Meeting**: Create/join rooms for collaboration
 
-- **Database**: MongoDB with advanced indexing- **Real-time**: WebSocket with Socket.IO
+- **Real-time**: Experience live translation & subtitles4. **AI Services** - Chrome AI integration with cloud fallbacks
 
-- **Database**: MongoDB with advanced indexing
 
-## 📦 Installation
 
-## 📦 Installation
+### 🔧 Chrome Extension  ### Technology Stack
 
-### Prerequisites
+- **Install & Pin**: Add to browser toolbar
 
-- Node.js 16+ and npm### Prerequisites
+- **Set Languages**: Configure source/target languages- **Frontend**: React 19, Tailwind CSS v4, Socket.IO Client### Technology Stack
 
-- MongoDB 4.4+- Node.js 16+ and npm
+- **Overlay Translation**: Translate any webpage content
 
-- Chrome browser (for extension)- MongoDB 4.4+
+- **Join Rooms**: Collaborative translation sessions- **Backend**: Node.js, Express.js, Socket.IO, MongoDB, Mongoose- **Frontend**: React 18, Material-UI, Socket.IO Client
+
+
+
+## 📡 API Endpoints- **Extension**: Chrome Extension API, Manifest V3- **Backend**: Node.js, Express.js, Socket.IO, MongoDB, Mongoose
+
+
+
+| Method | Endpoint | Description |- **AI Integration**: Chrome AI APIs (translator, summarizer, rewriter)- **Extension**: Chrome Extension API, Manifest V3
+
+|--------|----------|-------------|
+
+| `GET` | `/health` | Server status |- **Real-time**: WebSocket with Socket.IO- **AI Integration**: Chrome AI APIs (translator, summarizer, rewriter)
+
+| `POST` | `/api/ai/translate` | Translate text |
+
+| `POST` | `/api/ai/summarize` | Generate summaries |- **Database**: MongoDB with advanced indexing- **Real-time**: WebSocket with Socket.IO
+
+| `GET` | `/api/rooms` | List meeting rooms |
+
+| `POST` | `/api/messages` | Send messages |- **Database**: MongoDB with advanced indexing
+
+
+
+**WebSocket Events**: `join-room`, `message`, `translation`, `subtitle-update`## 📦 Installation
+
+
+
+## 🤝 Contributing## 📦 Installation
+
+
+
+We ❤️ contributions! Here's how to get started:### Prerequisites
+
+
+
+```bash- Node.js 16+ and npm### Prerequisites
+
+# Fork & clone your fork
+
+git clone https://github.com/YOUR_USERNAME/Lingualive.git- MongoDB 4.4+- Node.js 16+ and npm
+
+
+
+# Create feature branch- Chrome browser (for extension)- MongoDB 4.4+
+
+git checkout -b feature/amazing-feature
 
 - Git- Chrome browser (for extension)
 
-- Git
+# Make changes, commit & push
+
+git commit -m "✨ Add amazing feature"- Git
+
+git push origin feature/amazing-feature
 
 ### Quick Start
 
-### Quick Start
+# Open a Pull Request
 
-1. **Clone the repository**
+```### Quick Start
 
-```bash1. **Clone the repository**
 
-git clone https://github.com/mynamevansh/Lingualive.git```bash
 
-cd lingualivegit clone https://github.com/yourusername/lingualive.git
+**Guidelines**: Follow ESLint rules • Add tests • Update docs • Be awesome! 🌟1. **Clone the repository**
 
-```cd lingualive
 
-```
 
-2. **Install server dependencies**
+## 📄 Project Structure```bash1. **Clone the repository**
 
-```bash2. **Install server dependencies**
 
-cd server```bash
+
+```git clone https://github.com/mynamevansh/Lingualive.git```bash
+
+lingualive/
+
+├── 🌐 extension/     # Chrome extensioncd lingualivegit clone https://github.com/yourusername/lingualive.git
+
+├── ⚛️  webapp/       # React frontend  
+
+├── 🚀 server/        # Node.js backend```cd lingualive
+
+└── 📚 docs/          # Documentation
+
+``````
+
+
+
+## 🔒 Privacy & Security2. **Install server dependencies**
+
+
+
+✅ **Local AI Processing** with Chrome Built-in AI  ```bash2. **Install server dependencies**
+
+✅ **Minimal Data Collection** - only essential data stored  
+
+✅ **Encrypted Communications** - all data secured in transit  cd server```bash
+
+✅ **Open Source** - full transparency, no hidden tracking  
 
 npm installcd server
 
+## 🆘 Support & Issues
+
 ```npm install
 
-```
+🐛 **Found a bug?** → [Create an Issue](https://github.com/mynamevansh/Lingualive/issues)  
+
+💬 **Questions?** → [GitHub Discussions](https://github.com/mynamevansh/Lingualive/discussions)  ```
+
+✨ **Feature Request?** → [Feature Request Template](https://github.com/mynamevansh/Lingualive/issues/new)  
 
 3. **Install web app dependencies**
 
+## 🌟 Roadmap
+
 ```bash3. **Install web app dependencies**
 
-cd ../webapp```bash
+- [x] ✅ React frontend with Tailwind CSS v4
 
-npm installcd ../webapp
+- [x] ✅ Node.js backend with real-time synccd ../webapp```bash
 
-```npm install
+- [x] ✅ Chrome extension integration  
+
+- [ ] 🔄 Chrome AI (Gemini Nano) full integrationnpm installcd ../webapp
+
+- [ ] 📱 Mobile apps (React Native)
+
+- [ ] 🎥 Video call integration```npm install
+
+- [ ] 🏢 Enterprise features
 
 ```
 
+## 📜 License
+
 4. **Set up environment variables**
+
+This project is licensed under the **MIT License** - see [LICENSE](LICENSE) for details.
 
 ```bash4. **Set up environment variables**
 
+---
+
 cd ../server```bash
+
+<div align="center">
 
 # Create .env file with the following:cd ../server
 
+**Made with ❤️ for global communication**
+
 NODE_ENV=developmentcp .env.example .env
+
+[⭐ Star this repo](https://github.com/mynamevansh/Lingualive) • [🍴 Fork it](https://github.com/mynamevansh/Lingualive/fork) • [📢 Share it](https://twitter.com/intent/tweet?text=Check%20out%20LinguaLive%20-%20Real-time%20translation%20with%20Chrome%20AI!&url=https://github.com/mynamevansh/Lingualive)
 
 PORT=3001# Edit .env with your configuration
 
+*Breaking language barriers, one conversation at a time* 🌍
+
 MONGODB_URI=mongodb://localhost:27017/lingualive```
 
+</div>
 CORS_ORIGINS=chrome-extension://your-extension-id,http://localhost:5173
 
 CLIENT_URL=http://localhost:51735. **Start MongoDB**

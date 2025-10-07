@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoom SDK ReactDOM Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-container {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .log {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 20px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Zoom SDK ReactDOM Test</h1>
+    <p>This page tests the ReactDOM dependency loading for Zoom SDK integration.</p>
+    
+    <div class="test-container">
+        <h3>Test Controls</h3>
+        <button onclick="testReactGlobal()">1. Test React Global</button>
+        <button onclick="testReactDOMGlobal()">2. Test ReactDOM Global</button>
+        <button onclick="testReduxGlobal()">2.5. Test Redux Global</button>
+        <button onclick="testZoomProxy()">3. Test Zoom Proxy</button>
+        <button onclick="testZoomSDKLoad()">4. Test Full SDK Load</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <div id="status" class="status warning">
+        Ready to test. Backend should be running on port 3001.
+    </div>
+    
+    <div id="log" class="log">
+        === Zoom SDK ReactDOM Test Log ===<br>
+        Waiting for tests...<br>
+    </div>
+
+    <script>
+        const log = document.getElementById('log');
+        const status = document.getElementById('status');
+        
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `[${timestamp}] ${message}<br>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function setStatus(message, type = 'warning') {
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+        
+        function clearLog() {
+            log.innerHTML = '=== Log Cleared ===<br>';
+        }
+        
+        // Test 1: Check if React is globally available
+        function testReactGlobal() {
+            addLog('🔍 Testing React global availability...');
+            
+            if (window.React) {
+                addLog('✅ React is globally available');
+                addLog(`📍 React version: ${window.React.version || 'unknown'}`);
+                setStatus('React is globally available', 'success');
+            } else {
+                addLog('❌ React is NOT globally available');
+                addLog('🔄 Attempting to import React...');
+                
+                // Try to import React and make it global
+                import('react').then((React) => {
+                    window.React = React.default || React;
+                    addLog('✅ React imported and made global');
+                    addLog(`📍 React version: ${window.React.version || 'unknown'}`);
+                    setStatus('React imported successfully', 'success');
+                }).catch((error) => {
+                    addLog(`❌ Failed to import React: ${error.message}`);
+                    setStatus('React import failed', 'error');
+                });
+            }
+        }
+        
+        // Test 2: Check if ReactDOM is globally available
+        function testReactDOMGlobal() {
+            addLog('🔍 Testing ReactDOM global availability...');
+            
+            if (window.ReactDOM) {
+                addLog('✅ ReactDOM is globally available');
+                addLog(`📍 ReactDOM render method: ${typeof window.ReactDOM.render}`);
+                setStatus('ReactDOM is globally available', 'success');
+            } else {
+                addLog('❌ ReactDOM is NOT globally available');
+                addLog('🔄 Attempting to import ReactDOM...');
+                
+                // Try to import ReactDOM and make it global
+                import('react-dom').then((ReactDOM) => {
+                    window.ReactDOM = ReactDOM.default || ReactDOM;
+                    addLog('✅ ReactDOM imported and made global');
+                    addLog(`📍 ReactDOM render method: ${typeof window.ReactDOM.render}`);
+                    setStatus('ReactDOM imported successfully', 'success');
+                }).catch((error) => {
+                    addLog(`❌ Failed to import ReactDOM: ${error.message}`);
+                    setStatus('ReactDOM import failed', 'error');
+                });
+            }
+        }
+        
+        // Test 2.5: Check if Redux is globally available
+        function testReduxGlobal() {
+            addLog('🔍 Testing Redux global availability...');
+            
+            if (window.Redux) {
+                addLog('✅ Redux is globally available');
+                addLog(`📍 Redux createStore method: ${typeof window.Redux.createStore}`);
+                setStatus('Redux is globally available', 'success');
+            } else {
+                addLog('❌ Redux is NOT globally available');
+                addLog('🔄 Loading Redux from CDN...');
+                
+                // Load Redux from CDN
+                loadScript('https://unpkg.com/redux@4.1.0/dist/redux.min.js', 'redux-global-test')
+                    .then(() => {
+                        if (window.Redux) {
+                            addLog('✅ Redux loaded from CDN and made global');
+                            addLog(`📍 Redux createStore method: ${typeof window.Redux.createStore}`);
+                            setStatus('Redux loaded successfully', 'success');
+                        } else {
+                            addLog('❌ Redux still not available after CDN load');
+                            setStatus('Redux load failed', 'error');
+                        }
+                    }).catch((error) => {
+                        addLog(`❌ Failed to load Redux: ${error.message}`);
+                        setStatus('Redux load failed', 'error');
+                    });
+            }
+        }
+        
+        // Test 3: Test backend proxy for React dependencies
+        async function testZoomProxy() {
+            addLog('🔍 Testing Zoom proxy for React dependencies...');
+            
+            try {
+                // Test React proxy
+                const reactResponse = await fetch('http://localhost:3001/api/zoom/sdk/2.16.0/lib/vendor/react.min.js');
+                if (reactResponse.ok) {
+                    addLog('✅ React proxy endpoint is accessible');
+                } else {
+                    addLog(`❌ React proxy failed: ${reactResponse.status}`);
+                }
+                
+                // Test ReactDOM proxy
+                const reactDOMResponse = await fetch('http://localhost:3001/api/zoom/sdk/2.16.0/lib/vendor/react-dom.min.js');
+                if (reactDOMResponse.ok) {
+                    addLog('✅ ReactDOM proxy endpoint is accessible');
+                } else {
+                    addLog(`❌ ReactDOM proxy failed: ${reactDOMResponse.status}`);
+                }
+                
+                // Test Redux proxy
+                const reduxResponse = await fetch('http://localhost:3001/api/zoom/sdk/2.16.0/lib/vendor/redux.min.js');
+                if (reduxResponse.ok) {
+                    addLog('✅ Redux proxy endpoint is accessible');
+                } else {
+                    addLog(`❌ Redux proxy failed: ${reduxResponse.status}`);
+                }
+                
+                // Test Zoom SDK proxy
+                const zoomResponse = await fetch('http://localhost:3001/api/zoom/sdk/2.16.0/zoom-meeting-2.16.0.min.js');
+                if (zoomResponse.ok) {
+                    addLog('✅ Zoom SDK proxy endpoint is accessible');
+                    setStatus('All proxy endpoints accessible', 'success');
+                } else {
+                    addLog(`❌ Zoom SDK proxy failed: ${zoomResponse.status}`);
+                    setStatus('Some proxy endpoints failed', 'error');
+                }
+                
+            } catch (error) {
+                addLog(`❌ Proxy test failed: ${error.message}`);
+                setStatus('Proxy test failed - check backend', 'error');
+            }
+        }
+        
+        // Test 4: Full SDK loading simulation
+        async function testZoomSDKLoad() {
+            addLog('🚀 Starting full Zoom SDK load test...');
+            
+            try {
+                // Step 1: Ensure React is global
+                if (!window.React) {
+                    addLog('🔄 Making React globally available...');
+                    const React = await import('react');
+                    window.React = React.default || React;
+                    addLog('✅ React is now global');
+                }
+                
+                // Step 2: Ensure ReactDOM is global
+                if (!window.ReactDOM) {
+                    addLog('🔄 Making ReactDOM globally available...');
+                    const ReactDOM = await import('react-dom');
+                    window.ReactDOM = ReactDOM.default || ReactDOM;
+                    addLog('✅ ReactDOM is now global');
+                }
+                
+                // Step 2.5: Ensure Redux is global (load from CDN since it's not typically a module)
+                if (!window.Redux) {
+                    addLog('🔄 Loading Redux from CDN...');
+                    await loadScript('https://unpkg.com/redux@4.1.0/dist/redux.min.js', 'redux-global');
+                    addLog('✅ Redux is now global');
+                }
+                
+                // Step 3: Load React via proxy
+                addLog('🔄 Loading React via proxy...');
+                await loadScript('http://localhost:3001/api/zoom/sdk/2.16.0/lib/vendor/react.min.js', 'react-proxy-test');
+                
+                // Step 4: Load ReactDOM via proxy
+                addLog('🔄 Loading ReactDOM via proxy...');
+                await loadScript('http://localhost:3001/api/zoom/sdk/2.16.0/lib/vendor/react-dom.min.js', 'reactdom-proxy-test');
+                
+                // Step 5: Load Redux via proxy
+                addLog('🔄 Loading Redux via proxy...');
+                await loadScript('http://localhost:3001/api/zoom/sdk/2.16.0/lib/vendor/redux.min.js', 'redux-proxy-test');
+                
+                // Step 6: Verify dependencies
+                addLog('🔍 Verifying all dependencies...');
+                addLog(`React available: ${!!window.React}`);
+                addLog(`ReactDOM available: ${!!window.ReactDOM}`);
+                addLog(`Redux available: ${!!window.Redux}`);
+                
+                if (!window.React || !window.ReactDOM || !window.Redux) {
+                    throw new Error('Missing dependencies - React, ReactDOM, or Redux not available');
+                }
+                
+                // Step 7: Load Zoom SDK
+                addLog('🔄 Loading Zoom SDK via proxy...');
+                await loadScript('http://localhost:3001/api/zoom/sdk/2.16.0/zoom-meeting-2.16.0.min.js', 'zoom-sdk-test');
+                
+                // Step 8: Check for ZoomMtg
+                if (window.ZoomMtg) {
+                    addLog('🎉 SUCCESS! ZoomMtg is available');
+                    addLog(`ZoomMtg methods: ${Object.keys(window.ZoomMtg).join(', ')}`);
+                    setStatus('Zoom SDK loaded successfully!', 'success');
+                } else {
+                    addLog('❌ ZoomMtg is not available after loading');
+                    setStatus('Zoom SDK failed to load', 'error');
+                }
+                
+            } catch (error) {
+                addLog(`❌ Full SDK test failed: ${error.message}`);
+                setStatus(`SDK test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Utility function to load scripts
+        function loadScript(src, id) {
+            return new Promise((resolve, reject) => {
+                // Remove existing script
+                const existing = document.getElementById(id);
+                if (existing) existing.remove();
+                
+                const script = document.createElement('script');
+                script.id = id;
+                script.src = src;
+                script.type = 'application/javascript';
+                script.crossOrigin = 'use-credentials';
+                
+                script.onload = () => {
+                    addLog(`✅ Script loaded: ${id}`);
+                    resolve();
+                };
+                
+                script.onerror = (error) => {
+                    addLog(`❌ Script failed: ${id} - ${error.message || 'Unknown error'}`);
+                    reject(new Error(`Failed to load ${id}`));
+                };
+                
+                document.head.appendChild(script);
+                
+                // Timeout after 15 seconds
+                setTimeout(() => {
+                    reject(new Error(`Timeout loading ${id}`));
+                }, 15000);
+            });
+        }
+        
+        // Initialize page
+        addLog('🌟 Zoom SDK ReactDOM Test initialized');
+        addLog('Backend should be running on: http://localhost:3001');
+        addLog('Frontend should be running on: http://localhost:5174');
+        addLog('Click buttons above to run tests');
+    </script>
+</body>
+</html>

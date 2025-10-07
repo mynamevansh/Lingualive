@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Signature Test - LinguaLive</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .test-button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 10px 10px 0;
+            transition: all 0.3s;
+        }
+        
+        .test-button:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+        
+        .input-group {
+            margin: 15px 0;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+        
+        .log-area {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin: 20px 0;
+            border: 2px solid #374151;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .status.success { background: #10b981; color: #fff; }
+        .status.error { background: #ef4444; color: #fff; }
+        .status.loading { background: #fbbf24; color: #000; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1>🔧 Join Signature API Test</h1>
+            <p>Test the fixed /api/meetings/join-signature endpoint</p>
+            <div id="statusContainer">
+                <span class="status loading">Ready to Test</span>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📋 Test Parameters</h3>
+            <div class="input-group">
+                <label for="meetingNumber">Meeting Number:</label>
+                <input type="text" id="meetingNumber" value="123456789" placeholder="Enter 9-11 digit meeting number">
+            </div>
+            <div class="input-group">
+                <label for="userName">User Name:</label>
+                <input type="text" id="userName" value="Test User" placeholder="Enter user name">
+            </div>
+            <div class="input-group">
+                <label for="userEmail">User Email:</label>
+                <input type="email" id="userEmail" value="test@lingualive.com" placeholder="Enter user email">
+            </div>
+            <div class="input-group">
+                <label for="role">Role:</label>
+                <select id="role" style="width: 100%; padding: 10px; border: none; border-radius: 5px; font-size: 16px;">
+                    <option value="0">Participant (0)</option>
+                    <option value="1">Host (1)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🧪 API Tests</h3>
+            <button class="test-button" onclick="testJoinSignature()">Test Join Signature</button>
+            <button class="test-button" onclick="testInvalidMeeting()">Test Invalid Meeting</button>
+            <button class="test-button" onclick="testMissingData()">Test Missing Data</button>
+            <button class="test-button" onclick="testCreateMeeting()">Test Create Meeting</button>
+            <button class="test-button" onclick="clearLogs()">Clear Logs</button>
+        </div>
+        
+        <div class="log-area" id="logArea">🔧 Join Signature API Test Console
+==========================================
+
+Backend URL: http://localhost:3001
+Ready to test the fixed endpoint...
+
+</div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:3001';
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logArea = document.getElementById('logArea');
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            
+            logArea.innerHTML += `[${timestamp}] ${prefix} ${message}\n`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+        
+        function clearLogs() {
+            document.getElementById('logArea').innerHTML = '🔧 Join Signature API Test Console\n==========================================\n\nBackend URL: http://localhost:3001\nReady to test the fixed endpoint...\n\n';
+        }
+        
+        function updateStatus(status, text) {
+            const container = document.getElementById('statusContainer');
+            container.innerHTML = `<span class="status ${status}">${text}</span>`;
+        }
+        
+        async function testJoinSignature() {
+            log('Testing join signature with form data...', 'info');
+            updateStatus('loading', 'Testing...');
+            
+            try {
+                const meetingNumber = document.getElementById('meetingNumber').value;
+                const userName = document.getElementById('userName').value;
+                const userEmail = document.getElementById('userEmail').value;
+                const role = parseInt(document.getElementById('role').value);
+                
+                const requestBody = {
+                    meetingNumber: meetingNumber,
+                    role: role,
+                    userInfo: {
+                        name: userName,
+                        email: userEmail
+                    }
+                };
+                
+                log(`Request: POST ${BACKEND_URL}/api/meetings/join-signature`, 'info');
+                log(`Body: ${JSON.stringify(requestBody, null, 2)}`, 'info');
+                
+                const response = await fetch(`${BACKEND_URL}/api/meetings/join-signature`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('✅ Join signature generated successfully!', 'success');
+                    updateStatus('success', 'Success');
+                    
+                    log(`Response: ${JSON.stringify(data, null, 2)}`, 'info');
+                    
+                    // Display key information
+                    if (data.joinConfig) {
+                        log(`Meeting Number: ${data.joinConfig.meetingNumber}`, 'info');
+                        log(`User Name: ${data.joinConfig.userName}`, 'info');
+                        log(`Role: ${data.joinConfig.role} (${data.joinConfig.role === 1 ? 'Host' : 'Participant'})`, 'info');
+                        log(`Mock Mode: ${data.isMockMode ? 'Yes' : 'No'}`, 'info');
+                        log(`Signature Length: ${data.joinConfig.signature.length} chars`, 'info');
+                    }
+                } else {
+                    log(`❌ Request failed: ${response.status} ${response.statusText}`, 'error');
+                    log(`Error: ${JSON.stringify(data, null, 2)}`, 'error');
+                    updateStatus('error', 'Failed');
+                }
+                
+            } catch (error) {
+                log(`❌ Network error: ${error.message}`, 'error');
+                updateStatus('error', 'Network Error');
+            }
+        }
+        
+        async function testInvalidMeeting() {
+            log('Testing with invalid meeting number...', 'info');
+            
+            try {
+                const requestBody = {
+                    meetingNumber: "123", // Too short
+                    role: 0,
+                    userInfo: {
+                        name: "Test User",
+                        email: "test@example.com"
+                    }
+                };
+                
+                log(`Request: ${JSON.stringify(requestBody)}`, 'info');
+                
+                const response = await fetch(`${BACKEND_URL}/api/meetings/join-signature`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok && data.error.includes('Invalid meeting number format')) {
+                    log('✅ Invalid meeting number correctly rejected', 'success');
+                } else {
+                    log(`❌ Unexpected response: ${JSON.stringify(data)}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Test error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testMissingData() {
+            log('Testing with missing meeting number...', 'info');
+            
+            try {
+                const requestBody = {
+                    role: 0,
+                    userInfo: {
+                        name: "Test User"
+                    }
+                };
+                
+                log(`Request: ${JSON.stringify(requestBody)}`, 'info');
+                
+                const response = await fetch(`${BACKEND_URL}/api/meetings/join-signature`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok && data.error.includes('Meeting number is required')) {
+                    log('✅ Missing meeting number correctly rejected', 'success');
+                } else {
+                    log(`❌ Unexpected response: ${JSON.stringify(data)}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Test error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCreateMeeting() {
+            log('Testing meeting creation endpoint...', 'info');
+            
+            try {
+                const requestBody = {
+                    topic: "Test Meeting from API Test",
+                    duration: 60,
+                    settings: {
+                        mute_upon_entry: true,
+                        waiting_room: false
+                    },
+                    userInfo: {
+                        name: document.getElementById('userName').value,
+                        email: document.getElementById('userEmail').value
+                    }
+                };
+                
+                log(`Request: POST ${BACKEND_URL}/api/meetings/create`, 'info');
+                
+                const response = await fetch(`${BACKEND_URL}/api/meetings/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('✅ Meeting created successfully!', 'success');
+                    log(`Meeting ID: ${data.meeting.id}`, 'info');
+                    log(`Meeting Number: ${data.meeting.meetingNumber}`, 'info');
+                    log(`Topic: ${data.meeting.topic}`, 'info');
+                    log(`Mock Mode: ${data.meeting.isMock ? 'Yes' : 'No'}`, 'info');
+                    
+                    // Update the form with the created meeting number
+                    document.getElementById('meetingNumber').value = data.meeting.meetingNumber;
+                    log('📝 Updated form with created meeting number', 'info');
+                } else {
+                    log(`❌ Meeting creation failed: ${JSON.stringify(data)}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Meeting creation error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Join Signature API Test Console ready', 'success');
+            log('Fill in the form and click "Test Join Signature"', 'info');
+        });
+    </script>
+</body>
+</html>

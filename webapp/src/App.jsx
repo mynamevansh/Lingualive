@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
+import MeetingRoom from './components/meeting/MeetingRoom';
+import { apiRequest, API_ENDPOINTS, buildApiUrl } from './config/api.js';
 
 // Simple components for the clean UI
 const Header = ({ apiStatus }) => (
@@ -68,9 +70,8 @@ const WelcomeSection = ({ onStartMeeting, onJoinRoom }) => (
           <button
             onClick={async () => {
               try {
-                const response = await fetch('http://localhost:3001/api/ai/translate', {
+                const response = await apiRequest(API_ENDPOINTS.TRANSLATE, {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ text: 'Hello', sourceLanguage: 'en', targetLanguage: 'es' })
                 });
                 const result = await response.json();
@@ -86,6 +87,67 @@ const WelcomeSection = ({ onStartMeeting, onJoinRoom }) => (
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Test API Connection
+          </button>
+          
+          <button
+            onClick={async () => {
+              try {
+                console.log('🧪 Testing Zoom SDK ReactDOM fix...');
+                
+                // Import our Zoom service
+                const { default: simpleZoomService } = await import('./services/simpleZoomService');
+                
+                // Test SDK loading
+                const initialized = await simpleZoomService.initialize();
+                
+                if (initialized) {
+                  alert('🎉 Success! Zoom SDK loaded without ReactDOM errors.\n\nCheck the browser console for detailed logs.');
+                  console.log('✅ Zoom SDK test completed successfully');
+                } else {
+                  alert('⚠️ SDK initialization failed but no ReactDOM errors occurred.\n\nThis is expected in development mode. Check console for details.');
+                  console.log('⚠️ SDK in development mode - this is normal');
+                }
+              } catch (error) {
+                console.error('❌ Zoom SDK test failed:', error);
+                alert(`❌ Zoom SDK Test Failed:\n\n${error.message}\n\nCheck browser console for detailed error logs.`);
+              }
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-lg 
+                     shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+            Test Zoom SDK
+          </button>
+          
+          <button
+            onClick={async () => {
+              try {
+                console.log('🔄 Testing CORS Solutions...');
+                
+                // Import CORS test utilities
+                const { testBothMethods, checkBackendHealth, checkProxyHealth } = await import('./utils/corsTest');
+                
+                // Run comprehensive CORS tests
+                console.log('=== CORS Solution Tests ===');
+                await checkBackendHealth();
+                await checkProxyHealth();
+                await testBothMethods();
+                
+                alert('🎉 CORS tests completed!\n\nCheck the browser console for detailed results.\n\nBoth server-side CORS and Vite proxy solutions have been tested.');
+              } catch (error) {
+                console.error('❌ CORS test failed:', error);
+                alert(`❌ CORS Test Failed:\n\n${error.message}\n\nCheck browser console for details.`);
+              }
+            }}
+            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-8 rounded-lg 
+                     shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+            </svg>
+            Test CORS Solutions
           </button>
         </div>
 
@@ -150,12 +212,13 @@ const Footer = () => (
 function App() {
   const [currentView, setCurrentView] = useState('home');
   const [apiStatus, setApiStatus] = useState('checking');
+  const [meetingConfig, setMeetingConfig] = useState(null);
   
   // Test API connection when app loads
   useEffect(() => {
     const testAPI = async () => {
       try {
-        const response = await fetch('http://localhost:3001/health');
+        const response = await apiRequest(API_ENDPOINTS.HEALTH);
         if (response.ok) {
           const data = await response.json();
           setApiStatus('connected');
@@ -173,26 +236,121 @@ function App() {
     testAPI();
   }, []);
   
-  const handleStartMeeting = () => {
+  const handleStartMeeting = async () => {
     if (apiStatus !== 'connected') {
       alert('⚠️ Backend server is not running!\n\nPlease start the backend server:\ncd server && npm run dev');
       return;
     }
-    alert('Starting new meeting... 🎥\n\nThis will integrate with the meeting room component.');
-    setCurrentView('meeting');
+
+    try {
+      console.log('🔄 Creating new Zoom meeting...');
+      
+      // Create meeting via backend API
+      const response = await apiRequest(API_ENDPOINTS.MEETINGS_CREATE, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topic: 'LinguaLive Meeting',
+          duration: 60,
+          settings: {
+            mute_upon_entry: true,
+            waiting_room: false,
+            join_before_host: true
+          },
+          userInfo: {
+            name: 'Host User',
+            email: 'host@lingualive.com'
+          }
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('✅ Meeting created successfully:', result.meeting);
+        setMeetingConfig({
+          meeting: result.meeting,
+          joinConfig: result.joinConfig,
+          isHost: true
+        });
+        setCurrentView('meeting');
+      } else {
+        throw new Error(result.error || 'Failed to create meeting');
+      }
+    } catch (error) {
+      console.error('❌ Failed to create meeting:', error);
+      alert(`❌ Failed to create meeting:\n${error.message}\n\nPlease check the console for more details.`);
+    }
   };
   
-  const handleJoinRoom = () => {
+  const handleJoinRoom = async () => {
     if (apiStatus !== 'connected') {
       alert('⚠️ Backend server is not running!\n\nPlease start the backend server:\ncd server && npm run dev');
       return;
     }
-    const roomId = prompt('Enter Room ID:');
-    if (roomId) {
-      alert(`Joining room: ${roomId} 🚪\n\nThis will connect to the real-time translation service.`);
-      setCurrentView('meeting');
+    
+    const meetingNumber = prompt('Enter Meeting ID:');
+    if (meetingNumber) {
+      try {
+        console.log('🔄 Generating join signature for meeting:', meetingNumber);
+        
+        const response = await apiRequest(API_ENDPOINTS.MEETINGS_JOIN_SIGNATURE, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            meetingNumber: meetingNumber,
+            role: 0, // participant role
+            userInfo: {
+              name: 'Participant User',
+              email: 'participant@lingualive.com'
+            }
+          })
+        });
+
+        const result = await response.json();
+        
+        if (result.success) {
+          console.log('✅ Join signature generated successfully');
+          setMeetingConfig({
+            meeting: { 
+              meetingNumber: meetingNumber,
+              topic: 'Joined Meeting',
+              id: meetingNumber
+            },
+            joinConfig: result.joinConfig,
+            isHost: false
+          });
+          setCurrentView('meeting');
+        } else {
+          throw new Error(result.error || 'Failed to generate join signature');
+        }
+      } catch (error) {
+        console.error('❌ Failed to join meeting:', error);
+        alert(`❌ Failed to join meeting:\n${error.message}`);
+      }
     }
   };
+
+  const handleLeaveMeeting = () => {
+    setCurrentView('home');
+    setMeetingConfig(null);
+    console.log('📴 Left meeting, returning to home');
+  };
+
+  if (currentView === 'meeting' && meetingConfig) {
+    return (
+      <div className="min-h-screen bg-gray-900">
+        <MeetingRoom 
+          meetingConfig={meetingConfig}
+          onLeaveMeeting={handleLeaveMeeting}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">

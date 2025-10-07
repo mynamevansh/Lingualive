@@ -14,6 +14,9 @@ const setupSocket = require('./socket');
 const roomRoutes = require('./routes/rooms');
 const messageRoutes = require('./routes/messages');
 const userRoutes = require('./routes/users');
+const meetingRoutes = require('./routes/meetings');
+const aiRoutes = require('./routes/ai');
+const zoomProxyRoutes = require('./routes/zoom-proxy');
 
 // Create Express app
 const app = express();
@@ -22,7 +25,7 @@ const server = http.createServer(app);
 // Socket.IO setup with CORS
 const io = socketIo(server, {
   cors: {
-    origin: [process.env.CLIENT_URL || "http://localhost:5173", "http://localhost:3000", "http://localhost:5173"],
+    origin: [process.env.CLIENT_URL || "http://localhost:5173", "http://localhost:3000", "http://localhost:5173", "http://localhost:5174"],
     methods: ["GET", "POST"],
     credentials: true
   },
@@ -30,29 +33,84 @@ const io = socketIo(server, {
 });
 
 // Middleware setup
+// Enhanced CORS configuration for React frontend + Zoom SDK compatibility
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:5173',        // Vite dev server
+      'http://localhost:5174',        // Alternative Vite port
+      'http://localhost:3000',        // Create React App default
+      'http://127.0.0.1:5173',        // Alternative localhost
+      'http://127.0.0.1:5174',
+      process.env.CLIENT_URL,         // Production frontend URL
+      process.env.FRONTEND_URL        // Additional environment variable
+    ].filter(Boolean); // Remove undefined values
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log(`🚫 CORS blocked origin: ${origin}`);
+      callback(null, false); // Allow anyway for development
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'HEAD', 'PATCH'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'Cache-Control',
+    'X-File-Name'
+  ],
+  exposedHeaders: ['Content-Type', 'Content-Length', 'X-Total-Count'],
+  maxAge: 86400, // 24 hours
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+
+// Add Zoom SDK required headers to ALL responses
+app.use((req, res, next) => {
+  // Headers required for Zoom SDK Cross-Origin security
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  
+  // Additional headers for script loading
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  next();
+});
+
+// Relaxed helmet config for Zoom SDK compatibility
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      scriptSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "http://localhost:3001", "https://source.zoom.us"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "ws:", "wss:"],
+      connectSrc: ["'self'", "ws:", "wss:", "http://localhost:3001", "https://source.zoom.us"],
+      frameSrc: ["'self'", "https://zoom.us"],
+      mediaSrc: ["'self'", "https:"],
+      workerSrc: ["'self'", "blob:"],
+      childSrc: ["'self'", "blob:"],
     },
   },
+  crossOriginOpenerPolicy: false, // Disable to allow Zoom SDK
+  crossOriginEmbedderPolicy: false // Let our custom middleware handle this
 }));
 
 app.use(compression());
 app.use(morgan('combined'));
-
-// CORS configuration
-app.use(cors({
-  origin: [process.env.CLIENT_URL || "http://localhost:5173", "http://localhost:3000", "http://localhost:5173"],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -82,6 +140,47 @@ app.get('/health', (req, res) => {
 app.use('/api/rooms', roomRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/meetings', meetingRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/zoom', zoomProxyRoutes);
+
+// CORS Test Endpoint
+app.get('/api/data', (req, res) => {
+  console.log(`🔄 CORS test request from origin: ${req.headers.origin}`);
+  
+  res.json({
+    message: "Hello from the server!",
+    timestamp: new Date().toISOString(),
+    origin: req.headers.origin,
+    userAgent: req.headers['user-agent'],
+    method: req.method,
+    cors: "This response should work with both server-side CORS and Vite proxy"
+  });
+});
+
+// Additional CORS test endpoints
+app.post('/api/data', (req, res) => {
+  console.log(`🔄 CORS POST test request from origin: ${req.headers.origin}`);
+  
+  res.json({
+    message: "POST request successful!",
+    receivedData: req.body,
+    timestamp: new Date().toISOString(),
+    cors: "POST requests working with CORS"
+  });
+});
+
+app.get('/api/cors-test', (req, res) => {
+  res.json({
+    cors: {
+      origin: req.headers.origin,
+      method: req.method,
+      headers: req.headers,
+      timestamp: new Date().toISOString(),
+      serverMessage: "CORS configuration is working correctly!"
+    }
+  });
+});
 
 // AI Services endpoints
 app.post('/api/ai/translate', async (req, res) => {

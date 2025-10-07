@@ -6,7 +6,7 @@ export const useSocket = () => {
 
   useEffect(() => {
     // Connect to the backend Socket.IO server
-    const newSocket = io('http://localhost:3001', {
+    const newSocket = io(import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001', {
       transports: ['websocket', 'polling'],
       autoConnect: true,
     });

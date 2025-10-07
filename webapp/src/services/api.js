@@ -1,14 +1,11 @@
 // API service for LinguaLive
-const API_BASE = 'http://localhost:3001';
+import { apiRequest, API_ENDPOINTS, buildApiUrl } from '../config/api.js';
 
 // Translation service
 export const translateText = async (text, sourceLanguage, targetLanguage) => {
   try {
-    const response = await fetch(`${API_BASE}/api/translate`, {
+    const response = await apiRequest(API_ENDPOINTS.TRANSLATE, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({
         text,
         sourceLanguage,
@@ -31,11 +28,8 @@ export const translateText = async (text, sourceLanguage, targetLanguage) => {
 // Language detection service
 export const detectLanguage = async (text) => {
   try {
-    const response = await fetch(`${API_BASE}/api/detect-language`, {
+    const response = await apiRequest(API_ENDPOINTS.DETECT_LANGUAGE, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({ text }),
     });
     
@@ -54,11 +48,8 @@ export const detectLanguage = async (text) => {
 // Meeting notes services
 export const saveMeetingNotes = async (id, noteData) => {
   try {
-    const response = await fetch(`${API_BASE}/api/notes/${id}`, {
+    const response = await apiRequest(API_ENDPOINTS.NOTES_SAVE(id), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(noteData),
     });
     
@@ -75,7 +66,7 @@ export const saveMeetingNotes = async (id, noteData) => {
 
 export const getMeetingNotes = async (id) => {
   try {
-    const response = await fetch(`${API_BASE}/api/notes/${id}`);
+    const response = await apiRequest(API_ENDPOINTS.NOTES_GET(id));
     
     if (!response.ok) {
       throw new Error('Failed to get notes');
@@ -90,11 +81,8 @@ export const getMeetingNotes = async (id) => {
 
 export const generateSummary = async (text) => {
   try {
-    const response = await fetch(`${API_BASE}/api/generate-summary`, {
+    const response = await apiRequest(API_ENDPOINTS.GENERATE_SUMMARY, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({ text }),
     });
     
@@ -112,7 +100,7 @@ export const generateSummary = async (text) => {
 
 export const exportNotes = async (id, format) => {
   try {
-    const response = await fetch(`${API_BASE}/api/notes/${id}/export?format=${format}`);
+    const response = await apiRequest(API_ENDPOINTS.NOTES_EXPORT(id, format));
     
     if (!response.ok) {
       throw new Error('Export failed');

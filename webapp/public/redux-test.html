@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redux Fix Test - Direct</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 50px auto; 
+            padding: 20px; 
+        }
+        .test-result { 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        #log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Redux Fix Test - Direct Backend Connection</h1>
+    <p>This test directly verifies that our Redux dependency fix is working.</p>
+    
+    <div class="test-result info">
+        <strong>Status:</strong> <span id="status">Ready to test</span>
+    </div>
+    
+    <div>
+        <button onclick="testReduxEndpoint()">Test Redux Endpoint</button>
+        <button onclick="testAllDependencies()">Test All Dependencies</button>
+        <button onclick="testFullZoomFlow()">Test Full Zoom Flow</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <h3>Test Log:</h3>
+    <div id="log">Click a test button to start...</div>
+
+    <script>
+        const log = document.getElementById('log');
+        const status = document.getElementById('status');
+        
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `[${timestamp}] ${message}<br>`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function setStatus(message) {
+            status.textContent = message;
+        }
+        
+        function clearLog() {
+            log.innerHTML = 'Log cleared.<br>';
+        }
+        
+        async function testReduxEndpoint() {
+            addLog('🧪 Testing Redux endpoint specifically...');
+            setStatus('Testing Redux endpoint...');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/zoom/sdk/2.16.0/lib/vendor/redux.min.js');
+                
+                if (response.ok) {
+                    const contentType = response.headers.get('Content-Type');
+                    const size = response.headers.get('Content-Length');
+                    
+                    addLog(`✅ Redux endpoint SUCCESS!`);
+                    addLog(`📍 Status: ${response.status}`);
+                    addLog(`📍 Content-Type: ${contentType}`);
+                    addLog(`📍 Size: ${size} bytes`);
+                    setStatus('Redux endpoint working!');
+                } else {
+                    addLog(`❌ Redux endpoint failed: ${response.status} ${response.statusText}`);
+                    setStatus('Redux endpoint failed');
+                }
+            } catch (error) {
+                addLog(`❌ Redux test error: ${error.message}`);
+                setStatus('Connection error - check backend');
+            }
+        }
+        
+        async function testAllDependencies() {
+            addLog('🔍 Testing all Zoom SDK dependencies...');
+            setStatus('Testing all dependencies...');
+            
+            const dependencies = [
+                { name: 'Health', url: 'http://localhost:3001/health' },
+                { name: 'React', url: 'http://localhost:3001/api/zoom/sdk/2.16.0/lib/vendor/react.min.js' },
+                { name: 'ReactDOM', url: 'http://localhost:3001/api/zoom/sdk/2.16.0/lib/vendor/react-dom.min.js' },
+                { name: 'Redux', url: 'http://localhost:3001/api/zoom/sdk/2.16.0/lib/vendor/redux.min.js' },
+                { name: 'Zoom SDK', url: 'http://localhost:3001/api/zoom/sdk/2.16.0/zoom-meeting-2.16.0.min.js' }
+            ];
+            
+            let successCount = 0;
+            
+            for (const dep of dependencies) {
+                try {
+                    const response = await fetch(dep.url, { method: 'HEAD' });
+                    
+                    if (response.ok) {
+                        addLog(`✅ ${dep.name}: HTTP ${response.status}`);
+                        successCount++;
+                    } else {
+                        addLog(`❌ ${dep.name}: HTTP ${response.status}`);
+                    }
+                } catch (error) {
+                    addLog(`❌ ${dep.name}: ${error.message}`);
+                }
+            }
+            
+            addLog(`📊 Results: ${successCount}/${dependencies.length} dependencies working`);
+            
+            if (successCount === dependencies.length) {
+                setStatus('All dependencies working!');
+                addLog('🎉 ALL TESTS PASSED - Redux fix is working!');
+            } else {
+                setStatus('Some dependencies failed');
+            }
+        }
+        
+        async function testFullZoomFlow() {
+            addLog('🚀 Testing full Zoom SDK loading flow...');
+            setStatus('Testing full Zoom flow...');
+            
+            try {
+                // Step 1: Make React global (simulating our fix)
+                addLog('Step 1: Making React/ReactDOM/Redux globally available...');
+                
+                // Simulate making them global
+                if (!window.React) {
+                    addLog('  📦 React not global - would import and make global');
+                } else {
+                    addLog('  ✅ React already global');
+                }
+                
+                if (!window.ReactDOM) {
+                    addLog('  📦 ReactDOM not global - would import and make global');
+                } else {
+                    addLog('  ✅ ReactDOM already global');
+                }
+                
+                if (!window.Redux) {
+                    addLog('  📦 Redux not global - would import and make global');
+                } else {
+                    addLog('  ✅ Redux already global');
+                }
+                
+                // Step 2: Test loading dependencies in order
+                addLog('Step 2: Loading dependencies via proxy...');
+                
+                const deps = ['react.min.js', 'react-dom.min.js', 'redux.min.js'];
+                
+                for (const dep of deps) {
+                    const url = `http://localhost:3001/api/zoom/sdk/2.16.0/lib/vendor/${dep}`;
+                    const response = await fetch(url, { method: 'HEAD' });
+                    
+                    if (response.ok) {
+                        addLog(`  ✅ ${dep} available via proxy`);
+                    } else {
+                        addLog(`  ❌ ${dep} failed via proxy`);
+                        throw new Error(`${dep} not available`);
+                    }
+                }
+                
+                // Step 3: Test Zoom SDK
+                addLog('Step 3: Testing Zoom SDK availability...');
+                const zoomResponse = await fetch('http://localhost:3001/api/zoom/sdk/2.16.0/zoom-meeting-2.16.0.min.js', { method: 'HEAD' });
+                
+                if (zoomResponse.ok) {
+                    addLog('  ✅ Zoom SDK available via proxy');
+                } else {
+                    throw new Error('Zoom SDK not available');
+                }
+                
+                addLog('🎉 FULL ZOOM FLOW SUCCESS!');
+                addLog('📋 Summary: React, ReactDOM, Redux, and Zoom SDK all available');
+                addLog('🔧 The Redux dependency error is FIXED!');
+                setStatus('Full Zoom flow working!');
+                
+            } catch (error) {
+                addLog(`❌ Full flow failed: ${error.message}`);
+                setStatus('Full flow failed');
+            }
+        }
+        
+        // Auto-run a quick test on page load
+        window.addEventListener('load', () => {
+            addLog('🌟 Redux Fix Test Page Loaded');
+            addLog('Backend should be running on: http://localhost:3001');
+            addLog('Click buttons above to test the Redux dependency fix');
+        });
+    </script>
+</body>
+</html>

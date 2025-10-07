@@ -9,5 +9,55 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Development Test Script for Zoom SDK ReactDOM Fix -->
+    <script>
+      console.log('🧪 LinguaLive Development Mode - Zoom SDK Test Available');
+      console.log('💡 Use window.testZoomSDK() or click "Test Zoom SDK" button to verify ReactDOM fix');
+      
+      // Make test function globally available
+      window.testZoomSDK = async function() {
+        console.log('🚀 Testing Zoom SDK ReactDOM fix...');
+        
+        try {
+          // Test React/ReactDOM/Redux global availability
+          console.log('React global:', !!window.React);
+          console.log('ReactDOM global:', !!window.ReactDOM);
+          console.log('Redux global:', !!window.Redux);
+          
+          // Try to make them global if not available
+          if (!window.React) {
+            const React = await import('react');
+            window.React = React.default || React;
+            console.log('✅ React made global');
+          }
+          
+          if (!window.ReactDOM) {
+            const ReactDOM = await import('react-dom');
+            window.ReactDOM = ReactDOM.default || ReactDOM;
+            console.log('✅ ReactDOM made global');
+          }
+          
+          if (!window.Redux) {
+            console.log('🔄 Loading Redux from CDN...');
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/redux@4.1.0/dist/redux.min.js';
+            document.head.appendChild(script);
+            await new Promise((resolve) => {
+              script.onload = () => {
+                console.log('✅ Redux loaded from CDN');
+                resolve();
+              };
+            });
+          }
+          
+          console.log('🎯 React/ReactDOM/Redux are now globally available for Zoom SDK');
+          return true;
+        } catch (error) {
+          console.error('❌ Test failed:', error);
+          return false;
+        }
+      };
+    </script>
   </body>
 </html>

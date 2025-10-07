@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoom SDK Debug - LinguaLive</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .status.loading { background: #fbbf24; color: #000; }
+        .status.success { background: #10b981; color: #fff; }
+        .status.error { background: #ef4444; color: #fff; }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .test-button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 10px 10px 0;
+            transition: all 0.3s;
+        }
+        
+        .test-button:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+        
+        .test-button:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .log-area {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin: 20px 0;
+            border: 2px solid #374151;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .info-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .version-info {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Zoom SDK Debug Console</h1>
+            <p>LinguaLive Zoom Integration Testing</p>
+            <div id="statusContainer">
+                <span class="status loading">Initializing...</span>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🧪 SDK Loading Tests</h3>
+            <button class="test-button" onclick="testCDNLoading()">Test CDN Loading</button>
+            <button class="test-button" onclick="testNPMPackage()">Test NPM Package</button>
+            <button class="test-button" onclick="testWindowObject()">Test Window Object</button>
+            <button class="test-button" onclick="runAllTests()">Run All Tests</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>🎯 Zoom SDK Functions</h3>
+            <button class="test-button" onclick="testSDKInit()">Test SDK Init</button>
+            <button class="test-button" onclick="testMeetingJoin()">Test Meeting Join</button>
+            <button class="test-button" onclick="checkSDKMethods()">Check SDK Methods</button>
+            <button class="test-button" onclick="clearLogs()">Clear Logs</button>
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-card">
+                <h4>📊 Environment Info</h4>
+                <div id="envInfo">
+                    <div class="version-info">Loading environment details...</div>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <h4>🔗 SDK Status</h4>
+                <div id="sdkInfo">
+                    <div class="version-info">Checking SDK availability...</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="log-area" id="logArea">
+🚀 Zoom SDK Debug Console Ready
+==========================================
+
+</div>
+    </div>
+
+    <script>
+        let logCount = 0;
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logArea = document.getElementById('logArea');
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            
+            logCount++;
+            logArea.innerHTML += `[${timestamp}] ${prefix} ${message}\n`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+        
+        function clearLogs() {
+            document.getElementById('logArea').innerHTML = '🚀 Zoom SDK Debug Console Ready\n==========================================\n\n';
+            logCount = 0;
+        }
+        
+        function updateStatus(status, text) {
+            const container = document.getElementById('statusContainer');
+            container.innerHTML = `<span class="status ${status}">${text}</span>`;
+        }
+        
+        function updateEnvInfo() {
+            const envInfo = document.getElementById('envInfo');
+            envInfo.innerHTML = `
+                <div>User Agent: ${navigator.userAgent.substring(0, 60)}...</div>
+                <div>Platform: ${navigator.platform}</div>
+                <div>Language: ${navigator.language}</div>
+                <div>Cookies Enabled: ${navigator.cookieEnabled}</div>
+                <div>Online: ${navigator.onLine}</div>
+                <div>Screen: ${screen.width}x${screen.height}</div>
+            `;
+        }
+        
+        function updateSDKInfo() {
+            const sdkInfo = document.getElementById('sdkInfo');
+            const hasZoomMtg = typeof window.ZoomMtg !== 'undefined';
+            const hasZoomMtgEmbedded = typeof window.ZoomMtgEmbedded !== 'undefined';
+            
+            sdkInfo.innerHTML = `
+                <div>ZoomMtg Available: ${hasZoomMtg ? '✅' : '❌'}</div>
+                <div>ZoomMtgEmbedded: ${hasZoomMtgEmbedded ? '✅' : '❌'}</div>
+                <div>CDN Scripts: ${document.querySelectorAll('script[src*="zoom"]').length}</div>
+                <div>Window Objects: ${Object.keys(window).filter(k => k.toLowerCase().includes('zoom')).length}</div>
+            `;
+        }
+        
+        async function testCDNLoading() {
+            log('Testing CDN loading strategy...', 'info');
+            
+            try {
+                const script = document.createElement('script');
+                script.src = 'https://source.zoom.us/2.16.0/lib/vendor/react.min.js';
+                
+                script.onload = () => {
+                    log('✅ React dependency loaded successfully', 'success');
+                    
+                    const zoomScript = document.createElement('script');
+                    zoomScript.src = 'https://source.zoom.us/2.16.0/zoom-meeting-2.16.0.min.js';
+                    
+                    zoomScript.onload = () => {
+                        log('✅ Zoom SDK loaded via CDN', 'success');
+                        updateSDKInfo();
+                        checkZoomMtgAvailability();
+                    };
+                    
+                    zoomScript.onerror = () => {
+                        log('❌ Failed to load Zoom SDK from CDN', 'error');
+                    };
+                    
+                    document.head.appendChild(zoomScript);
+                };
+                
+                script.onerror = () => {
+                    log('❌ Failed to load React dependency', 'error');
+                };
+                
+                document.head.appendChild(script);
+                
+            } catch (error) {
+                log(`❌ CDN loading error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testNPMPackage() {
+            log('Testing NPM package import...', 'info');
+            
+            try {
+                // This would be the dynamic import method
+                log('Attempting dynamic import of @zoomus/websdk...', 'info');
+                
+                // Simulate what happens in our simpleZoomService
+                const hasModule = typeof window.require !== 'undefined' || typeof window.module !== 'undefined';
+                log(`Module system available: ${hasModule}`, hasModule ? 'success' : 'warning');
+                
+                // Check if already loaded via npm
+                if (window.ZoomMtg && window.ZoomMtg._version) {
+                    log(`✅ NPM package already loaded: v${window.ZoomMtg._version}`, 'success');
+                } else {
+                    log('⚠️ NPM package not detected in window', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ NPM package test error: ${error.message}`, 'error');
+            }
+        }
+        
+        function testWindowObject() {
+            log('Testing window object availability...', 'info');
+            
+            const zoomObjects = Object.keys(window).filter(key => 
+                key.toLowerCase().includes('zoom')
+            );
+            
+            log(`Found ${zoomObjects.length} Zoom-related window objects:`, 'info');
+            zoomObjects.forEach(obj => {
+                log(`  - window.${obj}: ${typeof window[obj]}`, 'info');
+            });
+            
+            if (window.ZoomMtg) {
+                log('✅ ZoomMtg found in window', 'success');
+                const methods = ['init', 'join', 'leave', 'getCurrentUser'];
+                methods.forEach(method => {
+                    const available = typeof window.ZoomMtg[method] === 'function';
+                    log(`  - ZoomMtg.${method}(): ${available ? '✅' : '❌'}`, available ? 'success' : 'error');
+                });
+            } else {
+                log('❌ ZoomMtg not found in window', 'error');
+            }
+        }
+        
+        function checkZoomMtgAvailability() {
+            if (typeof window.ZoomMtg !== 'undefined') {
+                log('✅ ZoomMtg is available!', 'success');
+                log(`Version: ${window.ZoomMtg.version || 'Unknown'}`, 'info');
+                updateStatus('success', 'SDK Available');
+            } else {
+                log('❌ ZoomMtg is not available', 'error');
+                updateStatus('error', 'SDK Not Found');
+            }
+        }
+        
+        async function testSDKInit() {
+            log('Testing SDK initialization...', 'info');
+            
+            if (!window.ZoomMtg) {
+                log('❌ Cannot test init - ZoomMtg not available', 'error');
+                return;
+            }
+            
+            try {
+                window.ZoomMtg.setZoomJSLib('https://source.zoom.us/2.16.0/lib', '/av');
+                window.ZoomMtg.preLoadWasm();
+                window.ZoomMtg.prepareWebSDK();
+                
+                log('✅ SDK preparation methods called successfully', 'success');
+                
+                // Test actual init
+                window.ZoomMtg.init({
+                    leaveUrl: window.location.href,
+                    success: () => {
+                        log('✅ SDK initialized successfully!', 'success');
+                        updateStatus('success', 'Initialized');
+                    },
+                    error: (error) => {
+                        log(`❌ SDK init failed: ${JSON.stringify(error)}`, 'error');
+                        updateStatus('error', 'Init Failed');
+                    }
+                });
+                
+            } catch (error) {
+                log(`❌ SDK init exception: ${error.message}`, 'error');
+            }
+        }
+        
+        function testMeetingJoin() {
+            log('Testing meeting join (simulation)...', 'info');
+            
+            if (!window.ZoomMtg) {
+                log('❌ Cannot test join - ZoomMtg not available', 'error');
+                return;
+            }
+            
+            try {
+                const testConfig = {
+                    meetingNumber: '123456789',
+                    userName: 'Test User',
+                    signature: 'test_signature',
+                    apiKey: 'test_api_key',
+                    passWord: '',
+                    success: () => {
+                        log('✅ Meeting join simulation successful', 'success');
+                    },
+                    error: (error) => {
+                        log(`⚠️ Meeting join simulation error (expected): ${JSON.stringify(error)}`, 'warning');
+                    }
+                };
+                
+                log('Simulating meeting join with test parameters...', 'info');
+                // Don't actually call join to avoid errors, just test the method exists
+                if (typeof window.ZoomMtg.join === 'function') {
+                    log('✅ ZoomMtg.join() method is available', 'success');
+                } else {
+                    log('❌ ZoomMtg.join() method not found', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Meeting join test error: ${error.message}`, 'error');
+            }
+        }
+        
+        function checkSDKMethods() {
+            log('Checking SDK methods availability...', 'info');
+            
+            if (!window.ZoomMtg) {
+                log('❌ ZoomMtg not available for method checking', 'error');
+                return;
+            }
+            
+            const requiredMethods = [
+                'init', 'join', 'leave', 'getCurrentUser', 'getAttendeeslist',
+                'mute', 'unmute', 'muteVideo', 'unmuteVideo', 'getAudioList',
+                'getVideoList', 'switchCamera', 'switchMicrophone',
+                'setZoomJSLib', 'preLoadWasm', 'prepareWebSDK'
+            ];
+            
+            let available = 0;
+            requiredMethods.forEach(method => {
+                const exists = typeof window.ZoomMtg[method] === 'function';
+                available += exists ? 1 : 0;
+                log(`${exists ? '✅' : '❌'} ZoomMtg.${method}()`, exists ? 'success' : 'error');
+            });
+            
+            log(`\nSummary: ${available}/${requiredMethods.length} methods available`, 
+                available === requiredMethods.length ? 'success' : 'warning');
+        }
+        
+        async function runAllTests() {
+            log('\n🔄 Running comprehensive SDK test suite...', 'info');
+            log('==========================================', 'info');
+            
+            updateStatus('loading', 'Running Tests...');
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            testWindowObject();
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await testNPMPackage();
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            checkSDKMethods();
+            
+            log('\n✅ All tests completed!', 'success');
+            updateStatus('success', 'Tests Complete');
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Debug console initialized', 'success');
+            updateEnvInfo();
+            updateSDKInfo();
+            
+            // Check initial SDK status
+            setTimeout(() => {
+                checkZoomMtgAvailability();
+                if (!window.ZoomMtg) {
+                    updateStatus('error', 'SDK Not Loaded');
+                    log('⚠️ Zoom SDK not detected. Try loading via CDN first.', 'warning');
+                }
+            }, 1000);
+        });
+        
+        // Update SDK info periodically
+        setInterval(updateSDKInfo, 2000);
+    </script>
+</body>
+</html>

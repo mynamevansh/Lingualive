@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoom Proxy Test - LinguaLive</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .test-button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 10px 10px 0;
+            transition: all 0.3s;
+        }
+        
+        .test-button:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+        
+        .log-area {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin: 20px 0;
+            border: 2px solid #374151;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        
+        .status.loading { background: #fbbf24; color: #000; }
+        .status.success { background: #10b981; color: #fff; }
+        .status.error { background: #ef4444; color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1>🔧 Zoom Proxy Test Console</h1>
+            <p>Testing Backend Proxy Solution for Zoom SDK MIME Type Issues</p>
+            <div id="statusContainer">
+                <span class="status loading">Ready to Test</span>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔍 Proxy Endpoint Tests</h3>
+            <button class="test-button" onclick="testProxyHealth()">Test Proxy Health</button>
+            <button class="test-button" onclick="testReactSDK()">Test React SDK via Proxy</button>
+            <button class="test-button" onclick="testZoomSDK()">Test Zoom SDK via Proxy</button>
+            <button class="test-button" onclick="testDirectCDN()">Test Direct CDN (comparison)</button>
+            <button class="test-button" onclick="runAllProxyTests()">Run All Tests</button>
+            <button class="test-button" onclick="clearLogs()">Clear Logs</button>
+        </div>
+        
+        <div class="test-section">
+            <h3>🚀 Live SDK Loading Test</h3>
+            <button class="test-button" onclick="loadZoomViaProxy()">Load Zoom SDK via Proxy</button>
+            <button class="test-button" onclick="checkSDKStatus()">Check SDK Status</button>
+            <div id="sdkStatus" style="margin-top: 15px;">
+                <div class="status loading">SDK Not Loaded</div>
+            </div>
+        </div>
+        
+        <div class="log-area" id="logArea">🔧 Zoom Proxy Test Console Ready
+==========================================
+
+Backend URL: http://localhost:3001
+Frontend URL: http://localhost:5173
+Proxy Path: /api/zoom/sdk/
+
+</div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:3001';
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logArea = document.getElementById('logArea');
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+            
+            logArea.innerHTML += `[${timestamp}] ${prefix} ${message}\n`;
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+        
+        function clearLogs() {
+            document.getElementById('logArea').innerHTML = '🔧 Zoom Proxy Test Console Ready\n==========================================\n\nBackend URL: http://localhost:3001\nFrontend URL: http://localhost:5173\nProxy Path: /api/zoom/sdk/\n\n';
+        }
+        
+        function updateStatus(status, text) {
+            const container = document.getElementById('statusContainer');
+            container.innerHTML = `<span class="status ${status}">${text}</span>`;
+        }
+        
+        function updateSDKStatus(status, text) {
+            const container = document.getElementById('sdkStatus');
+            container.innerHTML = `<div class="status ${status}">${text}</div>`;
+        }
+        
+        async function testProxyHealth() {
+            log('Testing proxy health endpoint...', 'info');
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/zoom/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Proxy health check passed: ${JSON.stringify(data)}`, 'success');
+                    return true;
+                } else {
+                    log(`❌ Proxy health check failed: ${response.status}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Proxy health check error: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        async function testReactSDK() {
+            log('Testing React SDK loading via proxy...', 'info');
+            
+            try {
+                const url = `${BACKEND_URL}/api/zoom/sdk/2.16.0/lib/vendor/react.min.js`;
+                const response = await fetch(url);
+                
+                log(`Response Status: ${response.status}`, 'info');
+                log(`Content-Type: ${response.headers.get('content-type')}`, 'info');
+                log(`Content-Length: ${response.headers.get('content-length')}`, 'info');
+                
+                if (response.ok) {
+                    const text = await response.text();
+                    const preview = text.substring(0, 200) + '...';
+                    log(`✅ React SDK loaded via proxy (${text.length} bytes)`, 'success');
+                    log(`Preview: ${preview}`, 'info');
+                    return true;
+                } else {
+                    log(`❌ React SDK proxy failed: ${response.status} ${response.statusText}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ React SDK proxy error: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        async function testZoomSDK() {
+            log('Testing Zoom SDK loading via proxy...', 'info');
+            
+            try {
+                const url = `${BACKEND_URL}/api/zoom/sdk/2.16.0/zoom-meeting-2.16.0.min.js`;
+                const response = await fetch(url);
+                
+                log(`Response Status: ${response.status}`, 'info');
+                log(`Content-Type: ${response.headers.get('content-type')}`, 'info');
+                log(`Content-Length: ${response.headers.get('content-length')}`, 'info');
+                
+                if (response.ok) {
+                    const text = await response.text();
+                    const preview = text.substring(0, 200) + '...';
+                    log(`✅ Zoom SDK loaded via proxy (${text.length} bytes)`, 'success');
+                    log(`Preview: ${preview}`, 'info');
+                    
+                    // Check if it contains expected Zoom SDK content
+                    if (text.includes('ZoomMtg') || text.includes('zoom')) {
+                        log('✅ Zoom SDK content verified', 'success');
+                    } else {
+                        log('⚠️ Zoom SDK content not recognized', 'warning');
+                    }
+                    return true;
+                } else {
+                    log(`❌ Zoom SDK proxy failed: ${response.status} ${response.statusText}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Zoom SDK proxy error: ${error.message}`, 'error');
+                return false;
+            }
+        }
+        
+        async function testDirectCDN() {
+            log('Testing direct CDN loading (for comparison)...', 'info');
+            
+            try {
+                const url = 'https://source.zoom.us/2.16.0/zoom-meeting-2.16.0.min.js';
+                const response = await fetch(url, { mode: 'cors' });
+                
+                log(`Direct CDN Status: ${response.status}`, 'info');
+                log(`Direct CDN Content-Type: ${response.headers.get('content-type')}`, 'info');
+                
+                if (response.ok) {
+                    log('✅ Direct CDN loading successful', 'success');
+                    return true;
+                } else {
+                    log(`❌ Direct CDN failed: ${response.status}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                log(`❌ Direct CDN error: ${error.message}`, 'error');
+                log('This is expected due to CORS/MIME type issues', 'info');
+                return false;
+            }
+        }
+        
+        async function loadZoomViaProxy() {
+            log('Loading Zoom SDK via proxy in real-time...', 'info');
+            updateSDKStatus('loading', 'Loading SDK...');
+            
+            try {
+                // Load React first
+                const reactScript = document.createElement('script');
+                reactScript.src = `${BACKEND_URL}/api/zoom/sdk/2.16.0/lib/vendor/react.min.js`;
+                reactScript.id = 'react-zoom-proxy-live';
+                
+                await new Promise((resolve, reject) => {
+                    reactScript.onload = () => {
+                        log('✅ React loaded via proxy', 'success');
+                        resolve();
+                    };
+                    reactScript.onerror = () => {
+                        log('❌ React loading failed', 'error');
+                        reject(new Error('React loading failed'));
+                    };
+                    document.head.appendChild(reactScript);
+                });
+                
+                // Load Zoom SDK
+                const zoomScript = document.createElement('script');
+                zoomScript.src = `${BACKEND_URL}/api/zoom/sdk/2.16.0/zoom-meeting-2.16.0.min.js`;
+                zoomScript.id = 'zoom-sdk-proxy-live';
+                
+                await new Promise((resolve, reject) => {
+                    zoomScript.onload = () => {
+                        log('✅ Zoom SDK loaded via proxy', 'success');
+                        resolve();
+                    };
+                    zoomScript.onerror = () => {
+                        log('❌ Zoom SDK loading failed', 'error');
+                        reject(new Error('Zoom SDK loading failed'));
+                    };
+                    document.head.appendChild(zoomScript);
+                });
+                
+                // Wait for ZoomMtg to be available
+                let attempts = 0;
+                const maxAttempts = 30;
+                
+                while (attempts < maxAttempts && typeof window.ZoomMtg === 'undefined') {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (typeof window.ZoomMtg !== 'undefined') {
+                    log('✅ ZoomMtg available on window object!', 'success');
+                    updateSDKStatus('success', 'SDK Loaded Successfully');
+                    log(`Available methods: ${Object.keys(window.ZoomMtg).slice(0, 10).join(', ')}...`, 'info');
+                    return true;
+                } else {
+                    log('❌ ZoomMtg not available after loading', 'error');
+                    updateSDKStatus('error', 'SDK Failed to Load');
+                    return false;
+                }
+                
+            } catch (error) {
+                log(`❌ Live SDK loading error: ${error.message}`, 'error');
+                updateSDKStatus('error', 'SDK Loading Error');
+                return false;
+            }
+        }
+        
+        function checkSDKStatus() {
+            log('Checking current SDK status...', 'info');
+            
+            if (typeof window.ZoomMtg !== 'undefined') {
+                log('✅ ZoomMtg is available', 'success');
+                updateSDKStatus('success', 'SDK Available');
+                
+                const methods = Object.keys(window.ZoomMtg);
+                log(`Available methods (${methods.length}): ${methods.slice(0, 15).join(', ')}...`, 'info');
+                
+                if (typeof window.ZoomMtg.init === 'function') {
+                    log('✅ ZoomMtg.init() method available', 'success');
+                }
+                if (typeof window.ZoomMtg.join === 'function') {
+                    log('✅ ZoomMtg.join() method available', 'success');
+                }
+            } else {
+                log('❌ ZoomMtg is not available', 'error');
+                updateSDKStatus('error', 'SDK Not Available');
+            }
+            
+            const proxyScripts = document.querySelectorAll('script[src*="localhost:3001"]');
+            log(`Proxy scripts loaded: ${proxyScripts.length}`, 'info');
+            
+            const cdnScripts = document.querySelectorAll('script[src*="zoom.us"]');
+            log(`CDN scripts loaded: ${cdnScripts.length}`, 'info');
+        }
+        
+        async function runAllProxyTests() {
+            log('\n🔄 Running comprehensive proxy test suite...', 'info');
+            log('==========================================', 'info');
+            updateStatus('loading', 'Running Tests...');
+            
+            const tests = [
+                { name: 'Proxy Health', test: testProxyHealth },
+                { name: 'React SDK Proxy', test: testReactSDK },
+                { name: 'Zoom SDK Proxy', test: testZoomSDK },
+                { name: 'Direct CDN (comparison)', test: testDirectCDN }
+            ];
+            
+            let passed = 0;
+            
+            for (const test of tests) {
+                log(`\n🔄 Testing: ${test.name}`, 'info');
+                const result = await test.test();
+                if (result) passed++;
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            log(`\n📊 Test Results: ${passed}/${tests.length} passed`, passed === tests.length ? 'success' : 'warning');
+            
+            if (passed === tests.length) {
+                updateStatus('success', 'All Tests Passed');
+                log('✅ Proxy solution is working correctly!', 'success');
+            } else {
+                updateStatus('error', `${tests.length - passed} Tests Failed`);
+                log('⚠️ Some proxy tests failed - check logs above', 'warning');
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            log('Proxy test console initialized', 'success');
+            log('Backend should be running on: http://localhost:3001', 'info');
+            log('Click "Test Proxy Health" to verify backend connection', 'info');
+        });
+    </script>
+</body>
+</html>
